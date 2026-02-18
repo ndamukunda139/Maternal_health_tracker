@@ -4,6 +4,10 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 # Create your models here.
 class Visit(models.Model):
+    VISIT_TYPES = [
+        ('ANC', 'Antenatal Care'),
+        ('PNC', 'Postnatal Care')
+    ]
     patient = models.ForeignKey('patients.Patient', on_delete=models.CASCADE)
     provider = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
     pregnancy = models.ForeignKey('pregnancies.Pregnancy', on_delete=models.CASCADE, blank=True, null=True)
@@ -11,7 +15,7 @@ class Visit(models.Model):
     visit_date = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    visit_type = models.CharField(max_length=100)
+    visit_type = models.CharField(max_length=100, choices=VISIT_TYPES, db_index=True)
     blood_pressure = models.CharField(max_length=7)
     heart_rate = models.PositiveSmallIntegerField(validators=[MinValueValidator(30), MaxValueValidator(220)])
     hemoglobin_level = models.DecimalField(max_digits=4, decimal_places=1, validators=[MinValueValidator(0)], null=True, blank=True)
