@@ -26,6 +26,7 @@ urlpatterns = [
     
     ## Include URLs from the patients app
 
-    path('patients/', include('patients.urls')), 
+    path('api/', include('patients.urls')), 
+    path('api-auth/', include('rest_framework.urls')),  # For DRF's login/logout views
 
 ]

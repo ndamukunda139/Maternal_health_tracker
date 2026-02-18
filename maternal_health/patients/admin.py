@@ -6,30 +6,19 @@ from .models import Patient
 class PatientAdmin(admin.ModelAdmin):
     list_display = ('user','first_name', 'last_name', 'medical_record_number', 'national_id', 'phone_number', 'date_of_birth')
     search_fields = ('first_name', 'last_name', 'medical_record_number', 'national_id', 'phone_number')
-    list_filter = ('age', 'marital_status', 'educational_level', 'occupation')
+    list_filter = ('marital_status', 'educational_level', 'occupation')
     fieldsets = (
         (None, {'fields': ('user', 'first_name', 'last_name', 'medical_record_number', 'national_id', 'phone_number', 'date_of_birth')}),
-        ('Additional Info', {'fields': ('age', 'address', 'marital_status', 'educational_level', 'occupation', 'gravidity', 'parity', 'communication_language')}),
+        ('Additional Info', {'fields': ('age', 'marital_status', 'educational_level', 'occupation', 'gravidity', 'parity', 'communication_language', 'address',)}),
     )
     # do not include user.date_of_birth in add form — cannot set it here
     add_fieldsets = (
         (None, {
             'classes': ('wide',), 'fields': ('user', 'first_name', 'last_name', 'medical_record_number', 'national_id', 'phone_number', 'age', 'address', 'martial_status', 'educational_level', 'occupation', 'gravidity', 'parity', 'communication_language')}),
     )
+    readonly_fields = ('age',)  # age is auto-computed from date_of_birth, so make it read-only in admin
 
     # expose the linked user's date_of_birth as read-only
-    '''
-    readonly_fields = ('date_of_birth',)
-
-    def date_of_birth(self, obj):
-        return getattr(obj.user, 'date_of_birth', None)
-    date_of_birth.admin_order_field = 'user__date_of_birth'
-    date_of_birth.short_description = 'Date of birth' 
-    
-     # make primary identity fields read-only when editing an existing Patient profile, but allow superusers to edit them.
-    
-    '''
-
     def get_readonly_fields(self, request, obj=None):
         
         '''

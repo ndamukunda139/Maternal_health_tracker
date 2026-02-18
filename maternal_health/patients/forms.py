@@ -6,7 +6,7 @@ class PatientRegistrationForm(forms.ModelForm):
         model = Patient
         fields = [
             'first_name', 'last_name', 'medical_record_number',
-            'date_of_birth', 'age', 'address', 'marital_status',
+            'date_of_birth', 'address', 'marital_status',
             'national_id', 'phone_number', 'educational_level',
             'occupation', 'gravidity', 'parity', 'communication_language'
 

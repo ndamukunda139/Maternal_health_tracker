@@ -7,7 +7,6 @@ class Patient(models.Model):
     last_name = models.CharField(max_length=30)
     medical_record_number = models.CharField(max_length=20, unique=True, db_index=True)
     date_of_birth = models.DateField(null=True, blank=True)
-    age = models.PositiveSmallIntegerField(null=True, blank=True)
     address = models.TextField()
     marital_status = models.CharField(max_length=15)
     national_id = models.CharField(max_length=20, unique=True, db_index=True)
@@ -26,6 +25,13 @@ class Patient(models.Model):
             models.Index(fields=['last_name', 'first_name']),
             models.Index(fields=['date_of_birth']),
         ]
+    @property
+    def age(self):
+        if self.date_of_birth:
+            today = models.DateField().today()
+            age = today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
+            return age
+        return None
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.national_id}"
