@@ -29,4 +29,13 @@ urlpatterns = [
     path('api/', include('patients.urls')), 
     path('api-auth/', include('rest_framework.urls')),  # For DRF's login/logout views
 
+    # Include URLs from the visits app
+    path('api/', include('visits.urls')),
+
+    # Include URLs from the pregnancies app
+    path('api/', include('pregnancies.urls')),
+
+    # Include URLs from the deliveries app
+    path('api/', include('deliveries.urls')),
+
 ]
