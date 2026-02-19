@@ -10,3 +10,7 @@ patients_router = routers.NestedDefaultRouter(router, r'patients', lookup='patie
 patients_router.register(r'visits', VisitViewSet, basename='patient-visits')
 
 urlpatterns = router.urls + patients_router.urls
+
+# Route to get all visits in the system (for admins and doctors)
+router.register(r'visits', VisitViewSet, basename='visits')
+urlpatterns = router.urls
