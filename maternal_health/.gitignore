@@ -1,0 +1,20 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Django stuff
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+db.sqlite3
+
+# Migrations
+*/migrations/__pycache__/
+*/migrations/*.pyc
+
+# Virtual environments
+venv/
+env/
