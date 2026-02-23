@@ -21,4 +21,4 @@ urlpatterns = router.urls + patient_router.urls + pregnancies_router.urls
 
 # Urls to get all pregnancies in the system
 router.register(r'pregnancies', PregnancyViewSet, basename='pregnancies')
-urlpatterns = router.urls
+urlpatterns = router.urls + patient_router.urls
