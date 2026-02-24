@@ -15,5 +15,5 @@ patient_router.register(r'deliveries', DeliveryViewSet, basename='patient-delive
 delivery_router = routers.NestedDefaultRouter(patient_router, r'deliveries', lookup='delivery')
 delivery_router.register(r'visits', VisitViewSet, basename='delivery-visits')
 
-# ✅ Combine everything
+# Combine routes, patient delivery and visit
 urlpatterns = router.urls + patient_router.urls + delivery_router.urls

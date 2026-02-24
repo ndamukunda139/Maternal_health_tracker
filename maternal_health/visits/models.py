@@ -49,5 +49,5 @@ class Visit(models.Model):
         ]
 
     def __str__(self):
-        return f"Visit {self.id} - Patient {self.patient} - Date {self.visit_date.strftime('%Y-%m-%d')}"
+        return f"Visit {self.id} - Patient {self.patient} "
 

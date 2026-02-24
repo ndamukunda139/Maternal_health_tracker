@@ -4,7 +4,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Delivery(models.Model):
     pregnancy = models.ForeignKey('pregnancies.Pregnancy', on_delete=models.CASCADE)
-    patient = models.ForeignKey('patients.Patient', on_delete=models.CASCADE, null=True, blank=True)
+    patient = models.ForeignKey('patients.Patient', on_delete=models.CASCADE)
 
     delivery_date = models.DateTimeField(auto_now_add=True)
 
@@ -51,19 +51,19 @@ class Delivery(models.Model):
         indexes = [
             models.Index(fields=['delivery_mode']),
             models.Index(fields=['place_of_delivery']),
-            models.Index(fields=['delivery_date']),  # ✅ added
+            models.Index(fields=['delivery_date']), 
         ]
     # Enforce patient consistency with pregnancy
     def save(self, *args, **kwargs):
-        # Auto-fill patient if not provided
-        if self.pregnancy and not self.patient:
+        # Always enforce patient consistency
+        if self.pregnancy:
             self.patient = self.pregnancy.patient
 
-        # Enforce consistency
         if self.pregnancy and self.patient and self.pregnancy.patient != self.patient:
             raise ValueError("Delivery patient must match pregnancy patient.")
 
         super().save(*args, **kwargs)
+
 
 
     def __str__(self):

@@ -15,7 +15,7 @@ class PrenatalVisitSerializer(serializers.ModelSerializer):
             "fetal_movement_count", "fetal_weight_estimate_g",'follow_up_date',
             "notes", "created_by", "updated_by",
         ]
-        read_only_fields = ["created_by", "updated_by"]
+        read_only_fields = ["created_by", "updated_by", "visit_type", "patient", "pregnancy", "provider"]
 
 # Serializer for postnatal visits, with fields relevant to postpartum care and newborn health.
 class PostnatalVisitSerializer(serializers.ModelSerializer):
@@ -24,13 +24,13 @@ class PostnatalVisitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Visit
         fields = [
-            "id", "patient", "patient_name", "delivery","provider",
+            "id", "patient", "patient_name", "pregnancy", "delivery","provider",
             "visit_date", "visit_type",'blood_pressure', 'heart_rate', 'hemoglobin_level', 'weight_kg', 'height_cm',
             "breastfeeding_status", "postpartum_complications",
             "newborn_health_issues", "follow_up_date", "notes",
             "created_by", "updated_by",
         ]
-        read_only_fields = ["created_by", "updated_by"]
+        read_only_fields = ["created_by", "updated_by", "visit_type", "patient", "pregnancy", "provider", "delivery"]
 
 
 
@@ -62,40 +62,8 @@ class VisitSerializer(serializers.ModelSerializer):
             # Common fields
             "notes", "created_by", "updated_by",
         ]
-        read_only_fields = ["created_by", "updated_by"]
+        read_only_fields = ["created_by", "updated_by", "visit_type", "patient", "pregnancy", "provider", "delivery"]
 
-    def validate(self, data):
-        visit_type = data.get("visit_type")
-
-        # Prenatal validation
-        if visit_type == "ANC":
-            required_fields = ["uterine_height_cm", "fetal_heart_rate"]
-            for field in required_fields:
-                if not data.get(field):
-                    raise serializers.ValidationError(
-                        {field: f"{field.replace('_',' ').title()} is required for prenatal visits."}
-                    )
-            # Pregnancy must be linked
-            if not data.get("pregnancy"):
-                raise serializers.ValidationError(
-                    {"pregnancy": "Prenatal visits must be linked to a pregnancy."}
-                )
-
-        # Postnatal validation
-        elif visit_type == "PNC":
-            required_fields = ["breastfeeding_status", "newborn_health_issues"]
-            for field in required_fields:
-                if not data.get(field):
-                    raise serializers.ValidationError(
-                        {field: f"{field.replace('_',' ').title()} is required for postnatal visits."}
-                    )
-            # Delivery must be linked
-            if not data.get("delivery"):
-                raise serializers.ValidationError(
-                    {"delivery": "Postnatal visits must be linked to a delivery."}
-                )
-
-        return data
 
 # Additional validation to ensure linked pregnancy/delivery belongs to the same patient
 def validate(self, data):

@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import timedelta
+from django.conf import settings
 
 class Pregnancy(models.Model):
     patient = models.ForeignKey('patients.Patient', on_delete=models.CASCADE)
@@ -21,24 +22,38 @@ class Pregnancy(models.Model):
     # Risk factors
     hiv_status = models.BooleanField(default=False)
     diabetes_status = models.BooleanField(default=False)
-    hypertension_status = models.BooleanField(default=False)  # ✅ added
-    multiple_pregnancy = models.BooleanField(default=False)   # ✅ added
+    hypertension_status = models.BooleanField(default=False) 
+    multiple_pregnancy = models.BooleanField(default=False) 
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='pregnancies_created'
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='pregnancies_updated'
+    )
 
     class Meta:
         indexes = [
             models.Index(fields=['patient', 'last_menstrual_period']),
-            models.Index(fields=['expected_delivery_date']),  # ✅ added
+            models.Index(fields=['expected_delivery_date']), 
         ]
 
     def __str__(self):
         return f"Pregnancy of {self.patient} - GA: {self.gestational_age_weeks} weeks"
 
-    def calculate_expected_delivery_date(self):
-        """
-        Helper function to auto-calc Expected Delivery Date 
-        from Last Mansuation Period if not set.
+   
+    """
+    Helper function to auto-calc Expected Delivery Date 
+    from Last Mansuation Period if not set.
         
-        """
-        if self.last_menstrual_period:
-            return self.last_menstrual_period + timedelta(days=280)
-        return None
+    """
+    
+    def save(self, *args, **kwargs):
+        if self.last_menstrual_period and not self.expected_delivery_date:
+            self.expected_delivery_date = self.last_menstrual_period + timedelta(days=280)
+        super().save(*args, **kwargs)
