@@ -124,9 +124,8 @@ class RegistrationSerializer(serializers.Serializer):
                 user=user,
                 emergency_contact=validated_data['emergency_contact']
             )
-        # create and run token for the user
-        token, _ = Token.objects.get_or_create(user=user)
-        return user, token
+        token, created = Token.objects.get_or_create(user=user)
+        return user, token 
 
 
 

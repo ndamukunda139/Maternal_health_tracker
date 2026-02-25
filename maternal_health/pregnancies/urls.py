@@ -1,7 +1,8 @@
 from rest_framework_nested import routers
-from .views import PregnancyViewSet
+from .views import PregnancyViewSet, export_pregnancies_csv, pregnancies_summary
 from patients.views import PatientProfileViewSet
 from visits.views import VisitViewSet
+from django.urls import path
 
 # Base router for patients
 router = routers.DefaultRouter()
@@ -22,3 +23,12 @@ urlpatterns = router.urls + patient_router.urls + pregnancies_router.urls
 # Urls to get all pregnancies in the system
 router.register(r'pregnancies', PregnancyViewSet, basename='pregnancies')
 urlpatterns = router.urls + patient_router.urls
+
+# Analytics endpoints
+urlpatterns += [
+	path('analytics/pregnancies/export/', export_pregnancies_csv, name='pregnancies-export'),
+	path('analytics/pregnancies/summary/', pregnancies_summary, name='pregnancies-summary'),
+
+	path('patients/<int:patient_pk>/analytics/pregnancies/export/', export_pregnancies_csv, name='patient-pregnancies-export'),
+	path('patients/<int:patient_pk>/analytics/pregnancies/summary/', pregnancies_summary, name='patient-pregnancies-summary'),
+]

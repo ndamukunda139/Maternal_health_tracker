@@ -9,4 +9,4 @@ class PregnancySerializer(serializers.ModelSerializer):
     class Meta:
         model = Pregnancy
         fields = '__all__'
-        read_only_fields = ['expected_delivery_date'] # Hide expected_delivery_date on 
+        read_only_fields = ['patient', 'created_by', 'updated_by', 'expected_delivery_date']

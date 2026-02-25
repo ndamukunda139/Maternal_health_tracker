@@ -4,6 +4,7 @@ from .models import Patient
 from .serializers import PatientProfileSerializer
 from rest_framework import permissions, viewsets, filters
 from .permissions import PatientProfilePermission
+from rest_framework.response import Response
 
 
 
@@ -30,5 +31,14 @@ class PatientProfileViewSet(viewsets.ModelViewSet):
         if user.role == 'patient':
             return Patient.objects.filter(user=user)  # Patients can only see their own profile
         return Patient.objects.all()  # Doctors, nurses, and admins can see all profiles
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)  # Associate the patient profile with the logged-in user
+
+    # Patient can't create, update or delete their own or others profile
+    def create(self, request, *args, **kwargs):
+        if request.user.role == 'patient':
+            return Response({'detail': 'Patients cannot create the profile.'}, status=403)
+        return super().create(request, *args, **kwargs)
 
 

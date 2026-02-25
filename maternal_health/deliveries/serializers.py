@@ -3,13 +3,13 @@ from .models import Delivery
 from pregnancies.models import Pregnancy
 
 class DeliverySerializer(serializers.ModelSerializer):
-    pregnancy_id = serializers.PrimaryKeyRelatedField(queryset=Pregnancy.objects.all(), source='pregnancy')
-    patient_id = serializers.PrimaryKeyRelatedField(queryset=Pregnancy.objects.all(), source='patient', allow_null=True)
+    pregnancy_id = serializers.PrimaryKeyRelatedField(source='pregnancy', read_only=True)
+    patient_id = serializers.PrimaryKeyRelatedField(source='patient', allow_null=True, read_only=True)
 
     class Meta:
         model = Delivery
         fields = '__all__'
-        read_only_fields = ['delivery_date', 'created_at', 'updated_at', 'created_by', 'updated_by']
+        read_only_fields = ['delivery_date', 'created_by', 'updated_by', 'patient', 'pregnancy', 'patient_id', 'pregnancy_id']
 
     def validate(self, data):
         pregnancy = data.get("pregnancy")

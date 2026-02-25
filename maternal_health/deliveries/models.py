@@ -29,9 +29,9 @@ class Delivery(models.Model):
     apgar_score_5min = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(0), MaxValueValidator(10)]
     )
-    alive = models.BooleanField(default=True)  # ✅ added
-    congenital_anomalies = models.TextField(blank=True, null=True)  # ✅ added
-    neonatal_complications = models.TextField(blank=True, null=True)  # ✅ added
+    alive = models.BooleanField(default=True)  
+    congenital_anomalies = models.TextField(blank=True, null=True)  
+    neonatal_complications = models.TextField(blank=True, null=True)  
 
     complications = models.TextField(blank=True, null=True)
     interventions = models.TextField(blank=True, null=True)
@@ -55,16 +55,14 @@ class Delivery(models.Model):
         ]
     # Enforce patient consistency with pregnancy
     def save(self, *args, **kwargs):
-        # Always enforce patient consistency
-        if self.pregnancy:
-            self.patient = self.pregnancy.patient
+    # Always enforce patient consistency
+        if self.pregnancy_id:
+            # Assign patient directly from pregnancy_id relation
+            from pregnancies.models import Pregnancy
+            pregnancy = Pregnancy.objects.get(pk=self.pregnancy_id)
+            self.patient = pregnancy.patient
 
-        if self.pregnancy and self.patient and self.pregnancy.patient != self.patient:
-            raise ValueError("Delivery patient must match pregnancy patient.")
+            if self.patient and pregnancy.patient != self.patient:
+                raise ValueError("Delivery patient must match pregnancy patient.")
 
         super().save(*args, **kwargs)
-
-
-
-    def __str__(self):
-        return f"Delivery {self.id} - Pregnancy {self.pregnancy} - Date {self.delivery_date.strftime('%Y-%m-%d')}"

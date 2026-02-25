@@ -21,3 +21,15 @@ class PatientProfilePermission(permissions.BasePermission):
             return True
 
         return False
+
+
+class IsClinicianOrAdmin(permissions.BasePermission):
+    """Allow access only to users with role 'doctor', 'nurse' or 'admin'."""
+
+    def has_permission(self, request, view):
+        user = request.user
+        return bool(
+            user
+            and getattr(user, 'is_authenticated', False)
+            and getattr(user, 'role', None) in ['doctor', 'nurse', 'admin']
+        )

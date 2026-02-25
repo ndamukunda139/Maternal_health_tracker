@@ -22,12 +22,15 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # Include URLs from the users app
     
+    # # For DRF's login/logout views
+    path('api-auth/', include('rest_framework.urls')),  
+    
     path('', include('users.urls')),  
     
     ## Include URLs from the patients app
 
     path('api/', include('patients.urls')), 
-    path('api-auth/', include('rest_framework.urls')),  # For DRF's login/logout views
+    
 
     # Include URLs from the visits app
     path('api/', include('visits.urls')),

@@ -9,67 +9,34 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializer import RegistrationSerializer
+from rest_framework.permissions import AllowAny
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 
-# Create register view
+
+# User registration view
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
+@method_decorator(csrf_exempt, name='dispatch')
 class RegisterView(APIView):
+    # registration should be open
+    permission_classes = [AllowAny]
+
+    # avoid SessionAuthentication (which enforces CSRF) for this open endpoint
+    authentication_classes = []
+
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid():
             try:
-                user = serializer.save()
+                user, token = serializer.save()  # make sure serializer returns both
                 return Response({
-                    'message': f'{user.role.capitalize()} registered successfully'}, status=status.HTTP_201_CREATED)
+                    'message': f'{user.role.capitalize()} - {user.username.capitalize()} registered successfully',
+                }, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-
-    
-'''
-# Create user using browser
-def register_user(request):
-    if request.method == "POST":
-        if request.method == 'POST':
-            user_form = CustomUserCreationForm(request.POST)
-            role = request.POST.get('role')
-
-            profile_form = None
-
-            # create role-specific profile
-            if role == 'doctor':
-                profile_form = DoctorProfileForm(request.POST)
-            elif role == 'nurse':
-               profile_form = NurseProfileForm(request.POST)
-            elif role == 'patient':
-                profile_form = PatientProfileForm(request.POST)
-
-            if user_form.is_valid() and (profile_form is None or profile_form.is_valid()):
-                user = user_form.save()
-                if role == 'doctor':
-                    profile = profile_form.save(commit=False)
-                    profile.user = user
-                    profile.save()
-                elif role == 'nurse':
-                    profile = profile_form.save(commit=False)
-                    profile.user = user
-                    profile.save()
-                elif role == 'patient':
-                    profile = profile_form.save(commit=False)
-                    profile.user = user
-                    profile.save()
-                return redirect('login')
-            else:
-                user_form = CustomUserCreationForm()
-                profile_form = None
-
-            return render(request, 'users/register.html', {
-                'user_form': user_form,
-                'profile_form': profile_form
-            })
-
-'''
-
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -161,35 +128,8 @@ def profile(request):
 
 
 
-# Create admin dashboard view
-''' @login_required
-@csrf_exempt
-@permission_required('is_staff', raise_exception=True)
-def admin_dashboard(request):
-    if request.method == 'GET':
-        if request.user.is_authenticated:
-            if request.user.role == 'admin':
-                users = CustomUser.objects.all()
-                users_data = []
-                for user in users:
-                    users_data.append({
-                        'username': user.username,
-                        'email': user.email,
-                        'role': user.role,
-                        'is_active': user.is_active,
-                        'is_staff': user.is_staff,
-                    })  
-                return JsonResponse({'users': users_data})
-            else:
-                return JsonResponse({'error': 'Access denied. Admins only.'}, status=403)
-        else:
-            return JsonResponse({'error': 'User not authenticated'}, status=401)
-    else:
-        return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
-'''
 
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+
 
 @login_required
 @csrf_exempt

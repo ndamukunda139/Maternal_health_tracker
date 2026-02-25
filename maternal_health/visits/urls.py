@@ -2,7 +2,8 @@ from rest_framework_nested import routers
 from patients.views import PatientProfileViewSet
 from pregnancies.views import PregnancyViewSet
 from deliveries.views import DeliveryViewSet
-from visits.views import VisitViewSet
+from visits.views import VisitViewSet, export_visits_csv, visits_summary
+from django.urls import path
 
 # Base router
 router = routers.DefaultRouter()
@@ -33,5 +34,20 @@ urlpatterns += router.urls
 urlpatterns += patients_router.urls
 urlpatterns += pregnancies_router.urls
 urlpatterns += deliveries_router.urls
+
+# Analytics endpoints (CSV export + JSON summary)
+urlpatterns += [
+	path('analytics/visits/export/', export_visits_csv, name='visits-export'),
+	path('analytics/visits/summary/', visits_summary, name='visits-summary'),
+
+	path('patients/<int:patient_pk>/analytics/visits/export/', export_visits_csv, name='patient-visits-export'),
+	path('patients/<int:patient_pk>/analytics/visits/summary/', visits_summary, name='patient-visits-summary'),
+
+	path('patients/<int:patient_pk>/pregnancies/<int:pregnancy_pk>/analytics/visits/export/', export_visits_csv, name='pregnancy-visits-export'),
+	path('patients/<int:patient_pk>/pregnancies/<int:pregnancy_pk>/analytics/visits/summary/', visits_summary, name='pregnancy-visits-summary'),
+
+	path('patients/<int:patient_pk>/deliveries/<int:delivery_pk>/analytics/visits/export/', export_visits_csv, name='delivery-visits-export'),
+	path('patients/<int:patient_pk>/deliveries/<int:delivery_pk>/analytics/visits/summary/', visits_summary, name='delivery-visits-summary'),
+]
 
 # urlpatterns = router.urls + patients_router.urls + pregnancies_router.urls + deliveries_router.urls

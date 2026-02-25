@@ -51,3 +51,21 @@ class Visit(models.Model):
     def __str__(self):
         return f"Visit {self.id} - Patient {self.patient} "
 
+# Proxy models for specific visit types
+class PrenatalVisit(Visit):
+    class Meta:
+        proxy = True
+        verbose_name = "Prenatal Visit"
+        verbose_name_plural = "Prenatal Visits"
+
+class PostnatalVisit(Visit):
+    class Meta:
+        proxy = True
+        verbose_name = "Postnatal Visit"
+        verbose_name_plural = "Postnatal Visits"
+
+class GeneralVisit(Visit):
+    class Meta:
+        proxy = True
+        verbose_name = "General Visit"
+        verbose_name_plural = "General Visits"
