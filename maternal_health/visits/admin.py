@@ -1,6 +1,8 @@
 from django.contrib import admin
 from .models import PrenatalVisit, PostnatalVisit, GeneralVisit
 
+
+# Base admin class to handle common logic for all visit types
 class BaseVisitAdmin(admin.ModelAdmin):
     list_display = ('id', 'patient', 'visit_date', 'visit_type', 'created_by', 'updated_by')
     search_fields = ('visit_date', 'visit_type')
@@ -16,6 +18,7 @@ class BaseVisitAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
+# Admin classes for each visit type with specific fieldsets
 class PrenatalVisitAdmin(BaseVisitAdmin):
     fieldsets = (
         (None, {'fields': (
@@ -32,6 +35,7 @@ class PrenatalVisitAdmin(BaseVisitAdmin):
         super().save_model(request, obj, form, change)
 
 
+# Postnatal visits have some different fields, so we create a separate admin class for them
 class PostnatalVisitAdmin(BaseVisitAdmin):
     fieldsets = (
         (None, {'fields': (
@@ -47,7 +51,7 @@ class PostnatalVisitAdmin(BaseVisitAdmin):
         obj.visit_type = "PNC"  # auto-set postnatal
         super().save_model(request, obj, form, change)
 
-
+# General visits can be used for any other type of visit, so we create a more generic admin class for them
 class GeneralVisitAdmin(BaseVisitAdmin):
     fieldsets = (
         (None, {'fields': (

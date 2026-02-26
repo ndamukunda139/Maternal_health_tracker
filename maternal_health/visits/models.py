@@ -2,7 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 
-# Create your models here.
+# Base Visit model with common fields for both prenatal and postnatal visits
 class Visit(models.Model):
     VISIT_TYPES = [
         ('ANC', 'Antenatal Care'),

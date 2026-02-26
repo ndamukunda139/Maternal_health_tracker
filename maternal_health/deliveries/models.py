@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-
+# Delivery model with comprehensive fields, including newborn outcomes and audit fields for created_by and updated_by to track changes and ensure data integrity.
 class Delivery(models.Model):
     pregnancy = models.ForeignKey('pregnancies.Pregnancy', on_delete=models.CASCADE)
     patient = models.ForeignKey('patients.Patient', on_delete=models.CASCADE)
@@ -53,9 +53,10 @@ class Delivery(models.Model):
             models.Index(fields=['place_of_delivery']),
             models.Index(fields=['delivery_date']), 
         ]
+
     # Enforce patient consistency with pregnancy
     def save(self, *args, **kwargs):
-    # Always enforce patient consistency
+        # Always enforce patient consistency
         if self.pregnancy_id:
             # Assign patient directly from pregnancy_id relation
             from pregnancies.models import Pregnancy

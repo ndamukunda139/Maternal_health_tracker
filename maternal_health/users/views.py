@@ -13,11 +13,11 @@ from django.http import JsonResponse
 from django.contrib.auth import logout as django_logout
 from django.shortcuts import redirect
 import json
-
-# User registration view
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
+
+# User registration view with role-specific fields and validation
 @method_decorator(csrf_exempt, name='dispatch')
 class RegisterView(APIView):
     # registration should be open
@@ -26,6 +26,7 @@ class RegisterView(APIView):
     # avoid SessionAuthentication (which enforces CSRF) for this open endpoint
     authentication_classes = []
 
+    # Override post method to handle registration logic
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid():
@@ -33,6 +34,7 @@ class RegisterView(APIView):
                 user, token = serializer.save()  # make sure serializer returns both
                 return Response({
                     'message': f'{user.role.capitalize()} - {user.username.capitalize()} registered successfully',
+                    'token': token.key
                 }, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -57,7 +59,7 @@ def login_view(request):
         return JsonResponse({'message': 'POST username and password to login'}, status=200)
 
 
-# plain Django logout view - bypasses CSRF
+# Plain Django logout view - bypasses CSRF
 @csrf_exempt
 def logout_view(request):
     if request.method == 'POST':
@@ -67,7 +69,7 @@ def logout_view(request):
         return JsonResponse({'message': 'POST to logout'}, status=200)
 
 
-# custom logout that bypasses CSRF and redirects to the login page
+# Custom logout that bypasses CSRF and redirects to the login page
 @csrf_exempt
 def csrf_free_logout(request):
     """Log the user out and redirect to DRF login form without CSRF checks."""

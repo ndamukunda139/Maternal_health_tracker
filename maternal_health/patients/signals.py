@@ -2,11 +2,18 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from uuid import uuid4
-
 from .models import Patient
 
-# Signal to auto-create a Patient profile when a new user with role 'patient' is created or updated. This ensures that every patient user has a corresponding Patient profile, even if the user data is sparse at creation time.
+'''
 
+Signal to auto-create a Patient profile when a new user with 
+role 'patient' is created or updated. This ensures that every patient 
+user has a corresponding Patient profile, even if the user data is 
+sparse at creation time. It also handles the case where a user's role 
+changes to or from 'patient' to maintain data integrity in the patient 
+list.
+
+'''
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_patient_for_new_user(sender, instance, created,  **kwargs):
     """

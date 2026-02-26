@@ -1,6 +1,6 @@
 from django.db import models
 
-# 
+# Patient model with comprehensive fields to capture essential patient information, including demographic details, contact information, and obstetric history, along with indexing for optimized queries and a computed age property for convenience.
 class Patient(models.Model):
     user = models.OneToOneField('users.CustomUser', on_delete=models.CASCADE)
     first_name = models.CharField(max_length=30)

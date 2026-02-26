@@ -49,5 +49,3 @@ urlpatterns += [
 	path('patients/<int:patient_pk>/deliveries/<int:delivery_pk>/analytics/visits/export/', export_visits_csv, name='delivery-visits-export'),
 	path('patients/<int:patient_pk>/deliveries/<int:delivery_pk>/analytics/visits/summary/', visits_summary, name='delivery-visits-summary'),
 ]
-
-# urlpatterns = router.urls + patients_router.urls + pregnancies_router.urls + deliveries_router.urls

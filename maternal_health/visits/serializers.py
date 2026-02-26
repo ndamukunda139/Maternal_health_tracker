@@ -37,8 +37,8 @@ class PostnatalVisitSerializer(serializers.ModelSerializer):
 
 
 '''
-Serializer for the Visit model, with dynamic fields based on visit type.
-This allows us to show/hide fields relevant to prenatal vs postnatal visits.
+Serializer for the other visists (ultrasound, lab tests, etc) that don't fit strictly into prenatal or postnatal categories.
+This allows us to have a flexible visit model while still providing specialized serializers for the most common visit
 
 '''
 class VisitSerializer(serializers.ModelSerializer):
@@ -60,7 +60,7 @@ class VisitSerializer(serializers.ModelSerializer):
             "newborn_health_issues",
 
             # Common fields
-            "notes", "created_by", "updated_by",
+            "notes", "created_by", "updated_by", "provider"
         ]
         read_only_fields = ["created_by", "updated_by", "visit_type", "patient", "pregnancy", "provider", "delivery"]
 

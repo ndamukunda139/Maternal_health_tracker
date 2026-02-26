@@ -1,5 +1,7 @@
 from rest_framework import permissions
 
+
+# Custom permissions for patient profiles and clinician/admin access to sensitive data, ensuring that patients can only view their own profiles while clinicians and admins have broader access for care management and oversight.
 class PatientProfilePermission(permissions.BasePermission):
     """
     Patients: read-only access to their own profile.

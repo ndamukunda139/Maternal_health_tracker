@@ -16,6 +16,7 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return f"{self.username} ({self.role})"
     
+# Role-specific profile models    
 class DoctorProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     specialization = models.CharField(max_length=100)
@@ -27,7 +28,7 @@ class DoctorProfile(models.Model):
     def __str__(self):
         return f"Dr. {self.user.get_full_name()} - {self.specialization}"
     
-
+# Nurses may have different fields than doctors, so we create a separate model for them
 class NurseProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     department = models.CharField(max_length=100)
@@ -41,6 +42,8 @@ class NurseProfile(models.Model):
     def __str__(self):
         return f"Nurse {self.user.get_full_name()} - {self.department}"
     
+    
+# Patients may have different fields than doctors and nurses, so we create a separate model for them    
 class PatientProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     emergency_contact = models.CharField(max_length=100)

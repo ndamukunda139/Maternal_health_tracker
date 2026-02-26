@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import timedelta
 from django.conf import settings
 
+# Pregnancy model with comprehensive fields, including risk factors and audit fields for created_by and updated_by to track changes and ensure data integrity.
 class Pregnancy(models.Model):
     patient = models.ForeignKey('patients.Patient', on_delete=models.CASCADE)
     gestational_age_weeks = models.PositiveSmallIntegerField(

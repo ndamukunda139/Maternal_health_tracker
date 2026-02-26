@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from .models import Delivery
-from pregnancies.models import Pregnancy
 
+
+# Serializer for Delivery model, including all fields and read-only audit fields to ensure data integrity and proper tracking of changes, along with validation to ensure the delivery's patient matches the pregnancy's patient for consistency in obstetric records.
 class DeliverySerializer(serializers.ModelSerializer):
     pregnancy_id = serializers.PrimaryKeyRelatedField(source='pregnancy', read_only=True)
     patient_id = serializers.PrimaryKeyRelatedField(source='patient', allow_null=True, read_only=True)

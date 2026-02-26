@@ -1,6 +1,8 @@
 from django.contrib import admin
 from .models import Delivery
 
+
+# DeliveryAdmin with audit fields and filtering/search capabilities to enhance admin usability and data integrity, including automatic setting of delivery date and audit fields on save, and read-only fields to prevent manual tampering with critical data.
 class DeliveryAdmin(admin.ModelAdmin):
     list_display = ('id', 'pregnancy', 'delivery_date', 'delivery_mode',
                     'place_of_delivery', 'newborn_gender', 'complications',

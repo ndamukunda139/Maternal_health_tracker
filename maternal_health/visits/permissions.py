@@ -1,5 +1,7 @@
 from rest_framework import permissions
 
+
+# Custom permission class for visits to enforce role-based access control
 class VisitPermission(permissions.BasePermission):
     """
     Patients: read-only access to their own visits.
@@ -15,7 +17,7 @@ class VisitPermission(permissions.BasePermission):
 
         if user.role == 'patient':
             if request.method in permissions.SAFE_METHODS:  # GET, HEAD, OPTIONS
-                # ✅ Visits link to patient → patient.user is the actual CustomUser
+                # Visits link to patient → patient.user is the actual CustomUser
                 return obj.patient.user == user
             return False  # block create, update, delete for patients
 

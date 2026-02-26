@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import Patient
 
 
-# register models in admin portal
+# PatientAdmin with comprehensive display, search, and filter capabilities to enhance admin usability and data integrity, including read-only fields for auto-computed age and linked user information.
 class PatientAdmin(admin.ModelAdmin):
     list_display = ('user','first_name', 'last_name', 'medical_record_number', 'national_id', 'phone_number', 'date_of_birth')
     search_fields = ('first_name', 'last_name', 'medical_record_number', 'national_id', 'phone_number')
@@ -37,7 +37,7 @@ class PatientAdmin(admin.ModelAdmin):
         
 
 
-admin.site.register(Patient, PatientAdmin)
+admin.site.register(Patient, PatientAdmin) # Register Patient model with custom admin interface
 
 
 

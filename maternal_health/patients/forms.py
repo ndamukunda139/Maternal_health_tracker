@@ -1,6 +1,7 @@
 from django import forms
 from .models import Patient
 
+# PatientRegistrationForm for creating new patient profiles with validation and user-friendly widgets, including a date picker for date of birth to enhance the registration process and ensure accurate data entry.
 class PatientRegistrationForm(forms.ModelForm):
     class Meta:
         model = Patient

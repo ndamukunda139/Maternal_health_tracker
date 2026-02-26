@@ -6,6 +6,8 @@ from django.contrib.auth import password_validation
 from rest_framework.authtoken.models import Token
 import re
 
+
+# Serializer for user registration with role-specific fields and validation
 class RegistrationSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
@@ -86,6 +88,7 @@ class RegistrationSerializer(serializers.Serializer):
 
         return data
     
+    # Override create method to handle user and profile creation based on role
     def create(self, validated_data):
         role = validated_data.pop('role')
         password = validated_data.pop('password') # use password1 as the actual password

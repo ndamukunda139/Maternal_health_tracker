@@ -17,6 +17,7 @@ from django.db.models import Count, Avg
 from django.db.models.functions import TruncMonth
 
 
+# VisitViewSet with dynamic serializer and strict filtering logic to ensure data integrity and proper access control.
 class VisitViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     
@@ -28,6 +29,7 @@ class VisitViewSet(viewsets.ModelViewSet):
     ordering_fields = ['visit_date']
     ordering = ['visit_date']
 
+    # Override get_queryset to ensure proper filtering based on nested relationships and user role.
     def get_queryset(self):
         queryset = Visit.objects.all()
 
@@ -63,6 +65,7 @@ class VisitViewSet(viewsets.ModelViewSet):
 
         return queryset
 
+    # Override get_serializer_class to return different serializers based on the presence of pregnancy_pk (Prenatal) or delivery_pk (Postnatal) in the URL.
     def get_serializer_class(self):
         if "pregnancy_pk" in self.kwargs:
             return PrenatalVisitSerializer
@@ -70,6 +73,7 @@ class VisitViewSet(viewsets.ModelViewSet):
             return PostnatalVisitSerializer
         return VisitSerializer
 
+    # Override perform_create to automatically set patient, pregnancy, delivery, visit_type, and provider based on URL and authenticated user, with strict consistency checks.
     def perform_create(self, serializer):
         patient_id = self.kwargs.get("patient_pk")
         pregnancy_id = self.kwargs.get("pregnancy_pk")
@@ -110,7 +114,7 @@ class VisitViewSet(viewsets.ModelViewSet):
             updated_by=self.request.user,
         )
 
-        # Override to provide custom error responses for validation errors
+    # Override to provide custom error responses for validation errors
     def handle_exception(self, exc):
         if isinstance(exc, serializers.ValidationError):
             return Response(
@@ -149,7 +153,7 @@ def _build_visit_queryset(request, kwargs):
 
     return queryset
 
-
+# Analytics endpoints for visits (CSV export and JSON summary) with consistent filtering logic and role-based access control.
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def export_visits_csv(request, patient_pk=None, pregnancy_pk=None, delivery_pk=None):
@@ -181,7 +185,7 @@ def export_visits_csv(request, patient_pk=None, pregnancy_pk=None, delivery_pk=N
 
     return response
 
-
+# Summary analytics endpoint for visits, scoped to patient/pregnancy/delivery if provided, with role-based access control.
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def visits_summary(request, patient_pk=None, pregnancy_pk=None, delivery_pk=None):
@@ -191,6 +195,7 @@ def visits_summary(request, patient_pk=None, pregnancy_pk=None, delivery_pk=None
     Clinicians/admins: can view any patient/pregnancy/delivery scope.
     Patients: may only view their own summary; if no `patient_pk` is provided,
     we automatically scope to the authenticated patient's record.
+    
     """
     user = request.user
     if getattr(user, 'role', None) == 'patient':

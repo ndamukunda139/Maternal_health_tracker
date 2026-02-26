@@ -7,7 +7,7 @@ from .permissions import PatientProfilePermission
 from rest_framework.response import Response
 
 
-
+# PatientProfileViewSet with role-based access control, filtering/searching, and automatic setting of audit fields to ensure data integrity and proper tracking of changes.
 class PatientProfileViewSet(viewsets.ModelViewSet):
     queryset = Patient.objects.all()
     serializer_class = PatientProfileSerializer

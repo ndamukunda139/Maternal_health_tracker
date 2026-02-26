@@ -1,18 +1,18 @@
 from .models import Pregnancy
 from .serializers import PregnancySerializer
-from rest_framework import permissions, viewsets, filters
+from rest_framework import permissions, viewsets, filters, status
 from django.shortcuts import get_object_or_404
-from patients.permissions import IsClinicianOrAdmin
 from patients.models import Patient
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.http import HttpResponse
-import csv
 from django.db.models import Count, Avg
 from django.db.models.functions import TruncMonth
+import csv
 
+
+# PregnancyViewSet with role-based access control, filtering/searching, and automatic setting of audit fields to ensure data integrity and proper tracking of changes.
 class PregnancyViewSet(viewsets.ModelViewSet):
     serializer_class = PregnancySerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -26,6 +26,7 @@ class PregnancyViewSet(viewsets.ModelViewSet):
     ordering = ['expected_delivery_date']
 
 
+    # Override get_queryset to ensure patients only see their own pregnancies, while clinicians/admins can see all pregnancies to protect patients data.
     def get_queryset(self):
         patient_id = self.kwargs.get("patient_pk")
         queryset = Pregnancy.objects.all()
@@ -38,6 +39,7 @@ class PregnancyViewSet(viewsets.ModelViewSet):
 
         return queryset
 
+   
     def perform_create(self, serializer):
         patient_id = self.kwargs.get("patient_pk")
         patient = get_object_or_404(Patient, pk=patient_id)
@@ -52,6 +54,7 @@ class PregnancyViewSet(viewsets.ModelViewSet):
         if hasattr(request.user, "role") and request.user.role == "patient":
             return Response({"error": "Patients cannot create pregnancies."}, status=403)
         return super().create(request, *args, **kwargs)
+
 
 # Implement analytics endpoints for pregnancies
 def _build_pregnancy_queryset(request, kwargs):

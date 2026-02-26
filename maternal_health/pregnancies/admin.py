@@ -1,8 +1,7 @@
 from django.contrib import admin
 from .models import Pregnancy
 
-# Register your models here.
-
+# PregnancyAdmin with audit fields and filtering/search capabilities to enhance admin usability and data integrity.
 class PregnancyAdmin(admin.ModelAdmin):
     list_display = ('id', 'patient', 'blood_type', 'hiv_status', 'diabetes_status', 'hypertension_status', 'multiple_pregnancy', 'created_by', 'updated_by')
     search_fields = ('hiv_status', 'blood_type')
@@ -20,4 +19,4 @@ class PregnancyAdmin(admin.ModelAdmin):
         obj.updated_by = request.user
         super().save_model(request, obj, form, change)
 
-admin.site.register(Pregnancy, PregnancyAdmin)
+admin.site.register(Pregnancy, PregnancyAdmin) # Register Pregnancy model with custom admin interface

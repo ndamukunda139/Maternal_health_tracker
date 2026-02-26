@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 from .models import CustomUser
 
-
+# Test case for user registration
 class RegistrationTest(APITestCase):
 	def test_register_patient_returns_token(self):
 		url = reverse('register')
