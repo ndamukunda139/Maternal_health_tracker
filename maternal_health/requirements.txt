@@ -7,4 +7,8 @@ drf-nested-routers
 
 
 # Authentication & Tokens
+<<<<<<< HEAD
 djangorestframework-simplejwt
+=======
+djangorestframework-simplejwt
+>>>>>>> 63e46acafc52ac3d8d81baefe6c530eff1d70521
