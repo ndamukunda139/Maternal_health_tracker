@@ -185,7 +185,8 @@ def export_visits_csv(request, patient_pk=None, pregnancy_pk=None, delivery_pk=N
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def visits_summary(request, patient_pk=None, pregnancy_pk=None, delivery_pk=None):
-    """Return basic summary statistics for visits as JSON.
+    """
+    Return basic summary statistics for visits as JSON.
 
     Clinicians/admins: can view any patient/pregnancy/delivery scope.
     Patients: may only view their own summary; if no `patient_pk` is provided,
@@ -197,12 +198,15 @@ def visits_summary(request, patient_pk=None, pregnancy_pk=None, delivery_pk=None
             patient_obj = PatientModel.objects.get(user=user)
         except PatientModel.DoesNotExist:
             return Response({'detail': 'Patient record not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
         # if a different patient_pk was requested, forbid
         if patient_pk is not None and int(patient_pk) != patient_obj.id:
             return Response({'detail': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
+        
         # scope to the authenticated patient
         patient_pk = patient_obj.id
-
+    
+    # For non-patient users, we allow any scope but still enforce role-based access control
     elif getattr(user, 'role', None) not in ['doctor', 'nurse', 'admin']:
         return Response({'detail': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
 

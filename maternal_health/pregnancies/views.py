@@ -66,7 +66,7 @@ def _build_pregnancy_queryset(request, kwargs):
 
     return queryset
 
-
+# export pregnancies to CSV for a patient, only accessible by that patient or clinicians/admins
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def export_pregnancies_csv(request, patient_pk=None):
@@ -92,19 +92,32 @@ def export_pregnancies_csv(request, patient_pk=None):
 
     return response
 
-
+# Summary analytics endpoint for pregnancies, scoped to patient if patient_pk provided, otherwise global summary for clinicians/admins
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def pregnancies_summary(request, patient_pk=None):
+    """
+    Return basic summary statistics for pregnancies as JSON.
+
+    Clinicians/admins: can view any patient scope or global summary.
+    Patients: may only view their own summary; if no `patient_pk` is provided,
+    we automatically scope to the authenticated patient's record.
+    """
     user = request.user
     if getattr(user, 'role', None) == 'patient':
         try:
             patient_obj = Patient.objects.get(user=user)
         except Patient.DoesNotExist:
             return Response({'detail': 'Patient record not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # if a different patient_pk was requested, forbid
         if patient_pk is not None and int(patient_pk) != patient_obj.id:
             return Response({'detail': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
+        
+        # scope to the authenticated patient
         patient_pk = patient_obj.id
+    
+    # For non-patient users, we allow any scope but still enforce role-based access control
     elif getattr(user, 'role', None) not in ['doctor', 'nurse', 'admin']:
         return Response({'detail': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
 

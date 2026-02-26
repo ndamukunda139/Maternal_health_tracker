@@ -57,7 +57,7 @@ def _build_delivery_queryset(request, kwargs):
 
     return queryset
 
-
+# Export deliveries to CSV for a patient, only accessible by that patient or clinicians/admins
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def export_deliveries_csv(request, patient_pk=None):
@@ -83,21 +83,36 @@ def export_deliveries_csv(request, patient_pk=None):
 
     return response
 
-
+# Summary analytics endpoint for deliveries, scoped to patient if patient_pk provided, otherwise global summary for clinicians/admins
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def deliveries_summary(request, patient_pk=None):
+    '''
+    Return basic summary statistics for deliveries as JSON.
+
+    Clinicians/admins: can view any patient scope or global summary.
+    Patients: may only view their own summary; if no `patient_pk` is provided,
+    we automatically scope to the authenticated patient's record.
+    
+    '''
+    
     user = request.user
-    # patients may only view their own deliveries summary
+
     if getattr(user, 'role', None) == 'patient':
         from patients.models import Patient as PatientModel
         try:
             patient_obj = PatientModel.objects.get(user=user)
         except PatientModel.DoesNotExist:
             return Response({'detail': 'Patient record not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # if a different patient_pk was requested, forbid
         if patient_pk is not None and int(patient_pk) != patient_obj.id:
             return Response({'detail': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
+        
+        # scope to the authenticated patient
         patient_pk = patient_obj.id
+    
+    # For non-patient users, we allow any scope but still enforce role-based access control
     elif getattr(user, 'role', None) not in ['doctor', 'nurse', 'admin']:
         return Response({'detail': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
 
