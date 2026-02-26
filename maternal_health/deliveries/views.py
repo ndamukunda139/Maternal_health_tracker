@@ -14,6 +14,7 @@ from rest_framework import status
 class DeliveryViewSet(viewsets.ModelViewSet):
     queryset = Delivery.objects.all()
     serializer_class = DeliverySerializer
+    permission_classes = [IsAuthenticated, IsClinicianOrAdmin]
 
     # Implementing filters and search
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
