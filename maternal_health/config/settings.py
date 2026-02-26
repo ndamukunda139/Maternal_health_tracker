@@ -154,3 +154,6 @@ STATIC_URL = 'static/'
 
 # login redirect URL
 LOGIN_REDIRECT_URL = '/profile/'
+
+# after using DRF's default logout view, redirect back to the browseable API login page
+LOGOUT_REDIRECT_URL = '/api-auth/login/'

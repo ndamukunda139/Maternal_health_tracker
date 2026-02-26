@@ -16,15 +16,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from users.views import login_view, logout_view
+from users.views import csrf_free_logout
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
+    # Custom logout that skips CSRF and redirects to the login page
+    path('api-auth/logout/', csrf_free_logout, name='csrf-free-logout'),
+
+    # For DRF's default login/logout views
+    path('api-auth/', include('rest_framework.urls')),
+    
     # Include URLs from the users app
-    
-    # # For DRF's login/logout views
-    path('api-auth/', include('rest_framework.urls')),  
-    
     path('', include('users.urls')),  
     
     ## Include URLs from the patients app

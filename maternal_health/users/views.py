@@ -1,7 +1,5 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
-import json
 from django.http import JsonResponse
 from .models import CustomUser, DoctorProfile, NurseProfile, PatientProfile
 from django.contrib.auth import authenticate, login
@@ -12,7 +10,9 @@ from .serializer import RegistrationSerializer
 from rest_framework.permissions import AllowAny
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-
+from django.contrib.auth import logout as django_logout
+from django.shortcuts import redirect
+import json
 
 # User registration view
 from django.views.decorators.csrf import csrf_exempt
@@ -40,13 +40,12 @@ class RegisterView(APIView):
 
 
 
-# Login view
+# Login view - plain Django view to bypass CSRF
 @csrf_exempt
 def login_view(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        username = data.get('username')
-        password = data.get('password')  # use password1 as the actual password
+        username = request.POST.get('username') or json.loads(request.body).get('username')
+        password = request.POST.get('password') or json.loads(request.body).get('password')
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
@@ -54,20 +53,30 @@ def login_view(request):
         else:
             return JsonResponse({'error': 'Invalid credentials'}, status=401)
     else:
-        return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+        # GET request - return form for browsable API
+        return JsonResponse({'message': 'POST username and password to login'}, status=200)
 
 
-# logout view
+# plain Django logout view - bypasses CSRF
 @csrf_exempt
 def logout_view(request):
     if request.method == 'POST':
-        from django.contrib.auth import logout
-        logout(request)
+        django_logout(request)
         return JsonResponse({'message': 'Logout successful'}, status=200)
     else:
-        return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+        return JsonResponse({'message': 'POST to logout'}, status=200)
 
-# Create profile view
+
+# custom logout that bypasses CSRF and redirects to the login page
+@csrf_exempt
+def csrf_free_logout(request):
+    """Log the user out and redirect to DRF login form without CSRF checks."""
+    if request.method == 'POST':
+        django_logout(request)
+    # whether POST or not, send to login page
+    return redirect('/api-auth/login/')
+
+# User profile view - returns user info and role-specific profile data
 @login_required
 @csrf_exempt
 def profile(request):
@@ -130,7 +139,7 @@ def profile(request):
 
 
 
-
+# Admin dashboard view - lists all users, only accessible to admins
 @login_required
 @csrf_exempt
 def admin_dashboard(request):
