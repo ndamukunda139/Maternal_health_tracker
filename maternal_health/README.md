@@ -1,6 +1,6 @@
 # Maternal Health Tracker API
 
-A comprehensive RESTful API for managing maternal health records, pregnancies, deliveries, and clinical visits. Designed to improve healthcare outcomes by providing healthcare providers with centralized access to patient maternal health data.
+A comprehensive RESTful API for managing maternal health records, pregnancies, deliveries, and clinical visits. Designed to improve healthcare outcomes by providing healthcare providers with centralized access to patient maternal health data and basic analytics feature of recorded data.
 
 ## Problem Statement
 
@@ -19,7 +19,7 @@ The **Maternal Health Tracker API** provides a centralized, secure platform for:
 ✅ **Complete Patient Records** - Unified maternal health history accessible to authorized providers  
 ✅ **Pregnancy Management** - Track pregnancies from conception through delivery with risk factor monitoring  
 ✅ **Delivery Records** - Comprehensive delivery documentation with newborn outcomes  
-✅ **Clinical Visits** - Document prenatal, postnatal, and general medical visits  
+✅ **Clinical Visits** - Document prenatal, postnatal, and general medical mothers' visits  
 ✅ **Analytics & Insights** - Generate summary reports on maternal and infant outcomes  
 ✅ **Role-Based Access** - Strict authorization ensuring patients only see their own data  
 ✅ **HIPAA-Ready** - Built with healthcare privacy and security standards in mind  
@@ -29,7 +29,7 @@ The **Maternal Health Tracker API** provides a centralized, secure platform for:
 ## Tech Stack
 
 - **Framework**: Django 6.0 with Django REST Framework
-- **Database**: SQLite (development) / PostgreSQL (production)
+- **Database**: SQLite (development)
 - **Authentication**: Token-based & Session-based auth
 - **Routing**: REST Nested Routers for hierarchical data
 - **API Format**: RESTful JSON
@@ -39,7 +39,7 @@ The **Maternal Health Tracker API** provides a centralized, secure platform for:
 ## Installation
 
 ### Prerequisites
-- Python 3.10+
+- Python 3.13
 - pip/virtualenv
 
 ### Setup
@@ -75,7 +75,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-The API will be available at `http://127.0.0.1:8000/api/`
+The API will be available at `https://danielndamukunda.pythonanywhere.com/api/`
 
 ---
 
@@ -110,9 +110,13 @@ Content-Type: application/json
 POST /logout/
 ```
 
-**All subsequent requests must include authentication credentials** (session or token-based).
+**All subsequent requests must include authentication credentials**.
 
 ---
+### Admin dashbord
+```
+GET /admin-dashboard/ : Only Admins can retrive all registered users
+```
 
 ## API Endpoints
 
@@ -240,13 +244,13 @@ Content-Type: application/json
 ```
 GET /api/visits/                                                  # All (clinicians only)
 GET /api/patients/{patient_id}/visits/                           # Patient's visits
-GET /api/patients/{patient_id}/pregnancies/{pregnancy_id}/visits/ # Pregnancy visits
-GET /api/patients/{patient_id}/deliveries/{delivery_id}/visits/   # Delivery visits
+GET /api/patients/{patient_id}/pregnancies/{pregnancy_id}/visits/ # Pregnancy visits (Antinatal Visits)
+GET /api/patients/{patient_id}/deliveries/{delivery_id}/visits/   # Delivery visits (Prenatal Visits)
 ```
 
 #### Create Visit
 ```
-POST /api/patients/{patient_id}/visits/
+POST /api/patients/{patient_id}/pregnancies/{pregnancy_id}/visits/ (Antinatal Visit)
 Content-Type: application/json
 
 {
@@ -256,21 +260,57 @@ Content-Type: application/json
   "hemoglobin_level": 12.0,
   "blood_pressure_systolic": 120,
   "blood_pressure_diastolic": 80,
+  ......
+  ......
+  ......
   "notes": "Routine checkup",
   "pregnancy_id": 1,
   "delivery_id": null
 }
 ```
 
-#### Get Specific Visit
+POST /api/patients/{patient_id}/deliveries/{delivery_id}/visits/ (Postnatal Visit)
+Content-Type: application/json
+
+{
+  "visit_date": "2024-09-15",
+  "visit_type": "prenatal",  # Options: prenatal, postnatal, general
+  "weight_kg": 65.5,
+  "hemoglobin_level": 12.0,
+  "blood_pressure_systolic": 120,
+  "blood_pressure_diastolic": 80,
+  "breastfeeding_status": true,
+  "postpartum_complications": "None",
+  "newborn_health_issues": "None",
+  ......
+  ......
+  "notes": "Routine checkup",
+  "pregnancy_id": 1,
+  "delivery_id": null
+}
+```
+
+#### Get Specific Visit to specific Patient
 ```
 GET /api/patients/{patient_id}/visits/{visit_id}/
 ```
 
-#### Update Visit
+#### Update Visit to specific Patient
 ```
 PATCH /api/patients/{patient_id}/visits/{visit_id}/
 Content-Type: application/json
+```
+#### Get, Update or Delete Specific visit to specific delivery
+
+```
+GET PATCH DELETE /api/patients/{patient_id}/deliveries/{delivery_id}/visits/{visit_id}/
+```
+
+#### Get, Update or Delete Specific visit to specific pregnancy
+
+```
+GET PATCH DELETE /api/patients/{patient_id}/pregnancies/{delivery_id}/visits/{visit_id}/
+
 ```
 
 ---
@@ -380,7 +420,7 @@ GET /api/patients/{patient_id}/analytics/visits/export/
 
 | Endpoint | Patient | Doctor | Nurse | Admin |
 |----------|---------|--------|-------|-------|
-| View own data | ✅ | ❌ | ❌ | ❌ |
+| View own data | ✅ | ✅ | ✅ | ✅ |
 | View any patient data | ❌ | ✅ | ✅ | ✅ |
 | Create records | ❌ | ✅ | ✅ | ✅ |
 | Edit records | ❌ | ✅ | ✅ | ✅ |
@@ -389,21 +429,21 @@ GET /api/patients/{patient_id}/analytics/visits/export/
 
 ### Key Rules
 
-- **Patients** can only access their own data via endpoints with their `patient_id`
-- **Patients cannot** access global analytics endpoints (e.g., `/api/analytics/pregnancies/summary/`)
+- **Patients** can only access their own data via endpoints with their after login
+- **Patients cannot** access global analytics endpoints (e.g., `/api/analytics/pregnancies/summary/`), patient access only her own data summary after login.
 - **Clinicians** (doctors, nurses, admins) can access any patient's data using the patient_id
 - **Authentication required** for all endpoints
 
 ### Example - Patient Access
 ```bash
-# Patient can view their own data
+# Patient can view their own pregnancies data
 GET /api/patients/5/pregnancies/        # ✅ If patient_id=5
 
 # Patient cannot view other patients
 GET /api/patients/3/pregnancies/        # ❌ 403 Forbidden (if logged in as patient 5)
 
-# Patient cannot access global analytics
-GET /api/analytics/pregnancies/summary/ # ❌ 403 Forbidden
+# Patient cannot access overall summary of global analytics, on sees her own summary
+GET /api/analytics/pregnancies/summary/ # Only her own summary. But Other roles will access overall systems summary.
 ```
 
 ---
@@ -442,11 +482,11 @@ curl -X POST http://localhost:8000/login/ \
   -d '{"username": "jane_doe", "password": "password123"}'
 
 # 2. Get own pregnancies (assuming patient_id=10)
-curl -X GET http://localhost:8000/api/patients/10/pregnancies/ \
+curl -X GET http://localhost:8000/api/pregnancies/ \
   -H "Cookie: sessionid=..."
 
 # 3. View pregnancy summary
-curl -X GET http://localhost:8000/api/patients/10/analytics/pregnancies/summary/ \
+curl -X GET http://localhost:8000/api/analytics/pregnancies/summary/ \
   -H "Cookie: sessionid=..."
 ```
 
@@ -520,14 +560,6 @@ curl -X GET http://localhost:8000/api/analytics/deliveries/summary/ \
 
 ---
 
-## Development & Testing
-
-### Run Tests
-```bash
-python manage.py test
-python manage.py test deliveries.tests  # Test specific app
-```
-
 ### Database Migrations
 ```bash
 python manage.py makemigrations        # Create migration files
@@ -584,10 +616,9 @@ MIT License - See LICENSE file for details
 ## Support & Documentation
 
 For issues, feature requests, or documentation visit:
-- **GitHub Issues**: [project-issues-link]
+- **GitHub Issues**: [(https://github.com/ndamukunda139/Maternal_health_tracker)]
 - **API Documentation**: `/api/docs/` (when available)
-- **Contact**: support@maternal-health-tracker.example.com
-
+- **Contact**: ndamukunda139@gmail.com
 ---
 
 ## Version History
