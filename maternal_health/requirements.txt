@@ -1,0 +1,13 @@
+# Core Django
+Django==6.0.0
+djangorestframework==3.14.0
+django-rest-framework==0.1.0
+
+# Nested Routers for hierarchical API endpoints
+drf-nested-routers==0.95.1
+
+# Database drivers
+psycopg2-binary==2.9.9  # PostgreSQL adapter
+
+# Authentication & Tokens
+djangorestframework-simplejwt==5.3.2
