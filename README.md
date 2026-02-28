@@ -93,6 +93,7 @@ Content-Type: application/json
   "role": "patient"  # Can be: patient, doctor, nurse, admin
 }
 ```
+Each role as specific additional required fields.
 
 ### Login
 ```
